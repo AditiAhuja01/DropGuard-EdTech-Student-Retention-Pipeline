@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 # ==========================================
 st.set_page_config(
     page_title="DropGuard | Churn Analytics",
-    page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -90,9 +89,9 @@ def run_query(query):
 st.sidebar.image("https://img.icons8.com/nolan/256/shield.png", width=60)
 st.sidebar.title("DropGuard")
 if db_handle and db_handle["type"] == "postgres":
-    st.sidebar.caption("🟢 Connected to Supabase Cloud")
+    st.sidebar.caption("Connected to Supabase Cloud")
 else:
-    st.sidebar.caption("🟢 Local Pipeline Engine (Clean Data)")
+    st.sidebar.caption("Local Pipeline Engine (Clean Data)")
 st.sidebar.markdown("---")
 page = st.sidebar.radio("Navigation", 
     ["1. Executive Overview", "2. Course Analytics", "3. Intervention Sandbox"],
@@ -103,7 +102,7 @@ page = st.sidebar.radio("Navigation",
 # PAGE 1: EXECUTIVE OVERVIEW
 # ==========================================
 if page == "1. Executive Overview":
-    st.title("🛡️ Executive Overview")
+    st.title("Executive Overview")
     st.markdown("Early-warning tracking system identifying students stalling out in the **First 20%** of their course timeline.")
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -167,7 +166,7 @@ if page == "1. Executive Overview":
 # PAGE 2: COURSE ANALYTICS
 # ==========================================
 elif page == "2. Course Analytics":
-    st.title("📚 Course Trajectory Analysis")
+    st.title("Course Trajectory Analysis")
     st.markdown("Identifying engagement drop-offs based on course length and difficulty.")
     
     col1, col2 = st.columns(2)
@@ -199,7 +198,7 @@ elif page == "2. Course Analytics":
 # PAGE 3: INTERVENTION SANDBOX
 # ==========================================
 else:
-    st.title("🚨 Live Intervention Tracker")
+    st.title("Live Intervention Tracker")
     st.markdown("Targeted list of students requiring immediate action based on our **50/30/20 Frustration Engine** calculations.")
     
     # Filter Controls

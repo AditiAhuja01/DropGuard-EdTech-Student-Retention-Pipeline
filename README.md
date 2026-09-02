@@ -1,4 +1,4 @@
-# 🛡️ DropGuard: Proactive EdTech Churn Analytics & Data Pipeline
+# DropGuard: Proactive EdTech Churn Analytics & Data Pipeline
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Cloud_Warehouse-336791?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org)
@@ -6,25 +6,25 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-Interactive_App-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![Pydantic](https://img.shields.io/badge/Pydantic-Data_Validation-E92063?style=flat&logo=pydantic&logoColor=white)](https://pydantic.dev)
 
-**DropGuard** is an end-to-end Data Engineering and Business Intelligence pipeline designed to detect and prevent student dropouts (**Churn**) in online education. Instead of waiting until a student disappears, DropGuard identifies at-risk behavior within the **first 20% of a course's timeline** using a transparent, rule-based **50/30/20 Frustration Engine** implemented via Advanced SQL Window Functions.
+DropGuard is an end-to-end Data Engineering and Business Intelligence pipeline designed to detect and prevent student dropouts (Churn) in online education platforms. Instead of waiting until a student disappears, DropGuard identifies at-risk behavior within the first 20% of a course's timeline using a transparent, rule-based 50/30/20 Frustration Engine implemented via SQL aggregations.
 
 ---
 
-## 💡 Executive Summary & Problem Statement
+## Executive Summary & Problem Statement
 
-### ❌ The Core Problem
-Traditional churn dashboards in EdTech and SaaS are **reactive**. They report who stopped paying or who quit last month. By the time a student has been inactive for two weeks, intervention is usually too late. Furthermore, black-box machine learning models output churn probabilities without explaining *why* the student is struggling or *what specific action* customer success teams should take.
+### The Core Problem
+Traditional churn dashboards in EdTech and SaaS are reactive. They report who stopped paying or who quit last month. By the time a student has been inactive for two weeks, intervention is usually too late. Furthermore, black-box machine learning models output churn probabilities without explaining why the student is struggling or what specific action customer success teams should take.
 
-### ✅ The DropGuard Solution
-DropGuard shifts analytics from **reactive reporting** to **proactive operational intervention**:
-1. **Behavioral Telemetry Simulation:** Synthesizes realistic platform events (logins, video watch times, quiz attempts) with distinct persona trajectories (Overwhelmed, Stalled, Completer).
-2. **Data Integrity & Quarantine Layer:** Employs **Pydantic** schemas to validate incoming telemetry, automatically rerouting corrupted rows (negative watch times, invalid emails, out-of-range quiz scores) to a quarantine locker without crashing database ingest.
-3. **50/30/20 Analytical SQL Engine:** Calculates a normalized Frustration Score (0–100) using SQL Common Table Expressions (CTEs) and conditional aggregates.
-4. **Actionable Operations Sandbox:** Feeds directly into a high-performance **Streamlit Dashboard** that categorizes risk personas and generates specific automated next steps (tutoring, SMS check-in, or engagement emails).
+### The DropGuard Solution
+DropGuard shifts analytics from reactive reporting to proactive operational intervention:
+1. **Behavioral Telemetry Simulation:** Synthesizes realistic platform events (logins, video watch times, quiz attempts) across distinct persona trajectories (Overwhelmed, Stalled, Completer).
+2. **Data Integrity & Quarantine Layer:** Employs Pydantic schemas to validate incoming telemetry, automatically rerouting corrupted rows (negative watch times, invalid emails, out-of-range quiz scores) to a quarantine locker without crashing database ingest.
+3. **50/30/20 Analytical SQL Engine:** Calculates a normalized Frustration Score (0 to 100) using a 2-step relational SQL pipeline.
+4. **Actionable Operations Sandbox:** Feeds directly into a high-performance Streamlit Dashboard that categorizes risk personas and generates specific automated next steps (tutoring, SMS check-in, or engagement emails).
 
 ---
 
-## 🏗️ Architecture & Data Flow
+## Architecture & Data Flow
 
 ```mermaid
 graph TD
@@ -52,9 +52,9 @@ graph TD
 
 ---
 
-## 📐 The 50/30/20 Frustration Algorithm
+## The 50/30/20 Frustration Algorithm
 
-DropGuard normalizes each student's course milestone to evaluate only their engagement within the **first 20% of the course duration**:
+DropGuard normalizes each student's course milestone to evaluate only their engagement within the first 20% of the course duration:
 
 $$\text{Frustration Score} = (0.50 \times \text{Absence Penalty}) + (0.30 \times \text{Inaction Penalty}) + (0.20 \times \text{Struggle Penalty})$$
 
@@ -65,15 +65,15 @@ $$\text{Frustration Score} = (0.50 \times \text{Absence Penalty}) + (0.30 \times
 | **Struggle** | **20%** | Quiz attempts & average scores | Penalizes quiz scores below 75% or unattempted quizzes. |
 
 ### Automated Operational Triggers
-- **Score $\ge$ 80**: *High Risk – Drop Imminent*
-- **Score 50–79**: *At Risk – Stalling*
+- **Score >= 80**: High Risk - Drop Imminent
+- **Score 50-79**: At Risk - Stalling
 - **Dominant Penalty = Absence**: Trigger automated SMS check-in.
 - **Dominant Penalty = Struggle**: Schedule 1-on-1 Academic Tutoring.
 - **Dominant Penalty = Inaction**: Send targeted encouraging content & study plan email.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 DropGuard/
@@ -103,13 +103,13 @@ DropGuard/
 
 ---
 
-## 🚀 Quickstart & How to Run
+## Quickstart & How to Run
 
 ### 1. Installation
 Clone the repository and install the dependencies:
 ```bash
-git clone https://github.com/your-username/DropGuard.git
-cd DropGuard
+git clone https://github.com/AditiAhuja01/DropGuard-EdTech-Student-Retention-Pipeline.git
+cd DropGuard-EdTech-Student-Retention-Pipeline
 pip install -r requirements.txt
 ```
 
@@ -118,7 +118,7 @@ DropGuard includes built-in dual-engine support. You can run the entire pipeline
 ```bash
 streamlit run app.py
 ```
-*The app will automatically initialize the local high-speed DuckDB engine using the validated telemetry dataset.*
+The application will automatically initialize the local high-speed DuckDB engine using the validated telemetry dataset.
 
 ### 3. (Optional) Run with Cloud Supabase PostgreSQL
 To connect to your cloud PostgreSQL database:
@@ -144,7 +144,7 @@ To connect to your cloud PostgreSQL database:
 
 ---
 
-## 📊 Dashboard Modules
+## Dashboard Modules
 
 1. **Executive Overview:**
    - Real-time KPIs (Active Students, Total Enrollments, Cohort Risk Rate).
@@ -162,7 +162,7 @@ To connect to your cloud PostgreSQL database:
 
 ---
 
-## 💼 Key Data Engineering Highlights for Interviews
+## Key Data Engineering Highlights for Interviews
 
 - **Data Quality & Quarantine Patterns:** Demonstrates hands-on knowledge of dirty telemetry handling using Pydantic validation schemas and dead-letter quarantine files.
 - **Relational SQL Pipeline:** Uses a clean, 2-step SQL pipeline (aggregating early telemetry with `JOIN` + `GROUP BY` and computing 50/30/20 penalty metrics with conditional logic).
