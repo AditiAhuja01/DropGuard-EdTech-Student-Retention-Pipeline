@@ -1,0 +1,26 @@
+course_id,course_name,total_days,difficulty
+CRS_100,Mastering SQL,90,Beginner
+CRS_101,Intro to Tableau,30,Beginner
+CRS_102,Mastering PowerBI,60,Intermediate
+CRS_103,Advanced SQL,60,Beginner
+CRS_104,Advanced PowerBI,30,Intermediate
+CRS_105,Intro to Tableau,30,Advanced
+CRS_106,Intro to Python,90,Beginner
+CRS_107,Mastering Tableau,60,Advanced
+CRS_108,Advanced Python,30,Advanced
+CRS_109,Advanced Tableau,30,Beginner
+CRS_110,Advanced PowerBI,60,Intermediate
+CRS_111,Mastering Tableau,45,Intermediate
+CRS_112,Intro to SQL,60,Advanced
+CRS_113,Mastering Python,45,Advanced
+CRS_114,Mastering SQL,45,Intermediate
+CRS_115,Intro to Tableau,45,Advanced
+CRS_116,Intro to Python,45,Beginner
+CRS_117,Intro to PowerBI,60,Beginner
+CRS_118,Advanced Tableau,45,Advanced
+CRS_119,Intro to PowerBI,90,Beginner
+CRS_120,Intro to SQL,45,Advanced
+CRS_121,Mastering Tableau,90,Advanced
+CRS_122,Intro to Tableau,45,Beginner
+CRS_123,Mastering PowerBI,30,Beginner
+CRS_124,Advanced SQL,45,Advanced
