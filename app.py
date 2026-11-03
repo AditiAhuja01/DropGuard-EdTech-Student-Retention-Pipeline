@@ -20,11 +20,11 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------
-# 2. Professional Light Corporate Styling (RetailFlow Standard)
+# 2. Professional Corporate Styling
 # -------------------------------------------------------------
 st.markdown("""
     <style>
-        /* Base page background */
+        /* Base page background: clean, soft slate off-white */
         .stApp {
             background-color: #F8FAFC;
         }
@@ -34,28 +34,13 @@ st.markdown("""
             display: none !important;
         }
 
-        /* Container padding matching RetailFlow */
+        /* Container padding */
         .block-container {
             padding-top: 1.2rem !important;
             padding-bottom: 2.5rem;
             padding-left: 2.5rem;
             padding-right: 2.5rem;
             max-width: 96% !important;
-        }
-
-        /* Status Pills */
-        .status-pill {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            background-color: #FFFFFF;
-            color: #475569;
-            border: 1px solid #E2E8F0;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         }
 
         /* Professional Metric Cards */
@@ -92,10 +77,6 @@ st.markdown("""
         }
         .kpi-warning {
             color: #D97706;
-            font-weight: 600;
-        }
-        .kpi-success {
-            color: #0D9488;
             font-weight: 600;
         }
 
@@ -154,15 +135,16 @@ st.markdown("""
             font-style: italic;
         }
 
-        /* Triage Guide Cards */
-        .tier-guide {
+        /* Explainer Guide Box */
+        .guide-box {
             background-color: #FFFFFF;
             border: 1px solid #E2E8F0;
             border-radius: 6px;
-            padding: 10px 14px;
-            font-size: 0.82rem;
+            padding: 12px 16px;
+            font-size: 0.85rem;
             color: #475569;
-            margin-bottom: 12px;
+            line-height: 1.5;
+            margin-bottom: 14px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -180,30 +162,24 @@ def run_query(sql):
     return db.execute(sql).df()
 
 # -------------------------------------------------------------
-# 4. Top Header & Status Pills (RetailFlow Signature Header)
+# 4. Clean Corporate Header (Status Pills Removed)
 # -------------------------------------------------------------
 st.markdown("""
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-        <div style="background: #4338CA; width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="background: #4338CA; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+            </div>
+            <div>
+                <div style="font-size: 1.65rem; font-weight: 700; color: #0F172A; line-height: 1.1; letter-spacing: -0.5px;">DropGuard</div>
+                <div style="font-size: 0.8rem; color: #64748B;">Student Retention & Early Churn Analytics Pipeline</div>
+            </div>
         </div>
-        <div>
-            <div style="font-size: 1.65rem; font-weight: 700; color: #0F172A; line-height: 1.1; letter-spacing: -0.5px;">DropGuard</div>
-            <div style="font-size: 0.8rem; color: #64748B;">Student Retention & Early Churn Analytics Pipeline</div>
+        <div style="font-size: 0.8rem; color: #64748B; font-weight: 500;">
+            Engine: DuckDB &bull; 50,000+ Events Evaluated
         </div>
-    </div>
-""", unsafe_allow_html=True)
-
-# Status Pills Bar
-st.markdown("""
-    <div style="margin-bottom: 14px;">
-        <span class="status-pill">Engine: <b>DuckDB In-Memory</b></span>
-        <span class="status-pill">Window: <b>First 20% Milestone</b></span>
-        <span class="status-pill">Accuracy: <b>88.7% Precision</b></span>
-        <span class="status-pill">Validation: <b>Pydantic Clean ETL</b></span>
-        <span class="status-pill">Events Evaluated: <b>50,321</b></span>
     </div>
 """, unsafe_allow_html=True)
 
@@ -446,29 +422,21 @@ with tab2:
     """, unsafe_allow_html=True)
 
 # =============================================================
-# TAB 3: INTERVENTION HIT-LIST (Clear Operational Triage)
+# TAB 3: INTERVENTION HIT-LIST (Operational Triage)
 # =============================================================
 with tab3:
     st.markdown("""
-        <div style="font-size: 0.88rem; color: #475569; margin-bottom: 10px;">
-            <b>What is this hit-list?</b> This is an operational triage table for student counselors and academic advisors. 
-            The <b>Frustration Score (0 to 100)</b> combines student attendance, video watch time, and quiz scores into a single urgency indicator.
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Explanation of the Urgency Slider
-    st.markdown("""
-        <div class="tier-guide">
-            <b>How to use the slider below:</b><br>
-            &bull; <b>Score 50+:</b> Shows all <b>71 struggling students</b> who are stalling out (Early Warning).<br>
-            &bull; <b>Score 80+:</b> Move the slider here to see the <b>11 critical emergencies</b> who have completely stopped participating and will quit immediately without direct contact.
+        <div class="guide-box">
+            <b>Operational Triage Protocol:</b> The <b>Frustration Score (0 to 100)</b> reflects a student's risk level during the first 20% course window.<br>
+            &bull; <b>Score 50+:</b> Captures all <b>71 students</b> who are stalling out (Early Warning).<br>
+            &bull; <b>Score 80+:</b> Filters for the <b>11 critical emergencies</b> who have completely disengaged and require immediate advisor outreach.
         </div>
     """, unsafe_allow_html=True)
 
     # Filter Controls
     f1, f2 = st.columns([1, 1.2])
     with f1:
-        score_filter = st.slider("Filter by Urgency Level (Minimum Frustration Score)", min_value=50, max_value=95, value=50, step=5)
+        score_filter = st.slider("Filter by Minimum Frustration Score Threshold", min_value=50, max_value=95, value=50, step=5)
     with f2:
         action_select = st.selectbox(
             "Filter by Prescribed Action",
@@ -480,15 +448,13 @@ with tab3:
             ]
         )
 
-    # Query Table with actual underlying activity metrics
+    # Query Table (Rock-solid standard columns guaranteed in every schema)
     hitlist_sql = f"""
         SELECT 
             i.student_id AS "Student ID",
             s.student_name AS "Student Name",
             c.course_name AS "Course Name",
-            i.early_logins || ' / 4' AS "Logins (Goal: 4+)",
-            i.early_watch_mins || ' min' AS "Watch (Goal: 30m)",
-            i.early_quiz_avg || '%' AS "Quiz (Goal: 75%)",
+            c.difficulty AS "Difficulty",
             i.frustration_score AS "Frustration Score",
             i.category AS "Risk Level",
             i.action_recommended AS "Recommended Action"
@@ -512,7 +478,7 @@ with tab3:
         column_config={
             "Frustration Score": st.column_config.ProgressColumn(
                 "Frustration Score",
-                help="Composite urgency score (0 = safe, 100 = drop imminent)",
+                help="Score from 0 (Safe) to 100 (Immediate Dropout Risk)",
                 format="%.1f",
                 min_value=0,
                 max_value=100
@@ -522,11 +488,11 @@ with tab3:
 
     st.markdown("""
         <div class="summary-box">
-            <div class="summary-heading">Operational Action Logic</div>
+            <div class="summary-heading">Operational Action Routing Logic</div>
             <p class="summary-text">
-                <b>SMS Check-in:</b> Triggered when Logins are low (Absence is the highest penalty).<br>
-                <b>Academic Tutoring:</b> Triggered when Quiz Scores are failing (Struggle is the highest penalty).<br>
-                <b>Study Plan Email:</b> Triggered when Video Watch Time is low (Inaction is the highest penalty).
+                <b>SMS Check-in:</b> Assigned when low logins (Absence) contribute the highest penalty points.<br>
+                <b>Academic Tutoring:</b> Assigned when low quiz performance (Struggle) contributes the highest penalty points.<br>
+                <b>Study Plan Email:</b> Assigned when low video watch time (Inaction) contributes the highest penalty points.
             </p>
         </div>
     """, unsafe_allow_html=True)
