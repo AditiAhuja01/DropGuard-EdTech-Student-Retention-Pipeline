@@ -134,18 +134,6 @@ st.markdown("""
             margin-bottom: 12px;
             font-style: italic;
         }
-
-        /* Explainer Guide Box */
-        .guide-box {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 6px;
-            padding: 12px 16px;
-            font-size: 0.85rem;
-            color: #475569;
-            line-height: 1.5;
-            margin-bottom: 14px;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -162,7 +150,7 @@ def run_query(sql):
     return db.execute(sql).df()
 
 # -------------------------------------------------------------
-# 4. Clean Corporate Header (Status Pills Removed)
+# 4. Clean Corporate Header
 # -------------------------------------------------------------
 st.markdown("""
     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; margin-bottom: 14px;">
@@ -422,33 +410,25 @@ with tab2:
     """, unsafe_allow_html=True)
 
 # =============================================================
-# TAB 3: INTERVENTION HIT-LIST (Operational Triage)
+# TAB 3: INTERVENTION HIT-LIST
 # =============================================================
 with tab3:
-    st.markdown("""
-        <div class="guide-box">
-            <b>Operational Triage Protocol:</b> The <b>Frustration Score (0 to 100)</b> reflects a student's risk level during the first 20% course window.<br>
-            &bull; <b>Score 50+:</b> Captures all <b>71 students</b> who are stalling out (Early Warning).<br>
-            &bull; <b>Score 80+:</b> Filters for the <b>11 critical emergencies</b> who have completely disengaged and require immediate advisor outreach.
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Filter Controls
+    # Direct Filter Controls (Clean and Minimalist)
     f1, f2 = st.columns([1, 1.2])
     with f1:
-        score_filter = st.slider("Filter by Minimum Frustration Score Threshold", min_value=50, max_value=95, value=50, step=5)
+        score_filter = st.slider("Filter by Minimum Frustration Score", min_value=50, max_value=95, value=50, step=5)
     with f2:
         action_select = st.selectbox(
-            "Filter by Prescribed Action",
+            "Filter by Recommended Action",
             [
-                "All Prescribed Actions",
+                "All Recommended Actions",
                 "Send automated SMS check-in (Absence pattern)",
                 "Send targeted encouraging email (Inaction pattern)",
                 "Schedule 1-on-1 Academic Tutoring (Struggle pattern)"
             ]
         )
 
-    # Query Table (Rock-solid standard columns guaranteed in every schema)
+    # Query Table
     hitlist_sql = f"""
         SELECT 
             i.student_id AS "Student ID",
@@ -486,13 +466,13 @@ with tab3:
         }
     )
 
+    # Operational Protocol (Moved cleanly to the bottom)
     st.markdown("""
         <div class="summary-box">
-            <div class="summary-heading">Operational Action Routing Logic</div>
+            <div class="summary-heading">Operational Action Protocol</div>
             <p class="summary-text">
-                <b>SMS Check-in:</b> Assigned when low logins (Absence) contribute the highest penalty points.<br>
-                <b>Academic Tutoring:</b> Assigned when low quiz performance (Struggle) contributes the highest penalty points.<br>
-                <b>Study Plan Email:</b> Assigned when low video watch time (Inaction) contributes the highest penalty points.
+                &bull; <b>Score 50-79 (At Risk - Stalling):</b> Student is falling behind benchmarks. Send automated SMS or email nudge.<br>
+                &bull; <b>Score 80-100 (High Risk - Drop Imminent):</b> Student has stopped participating entirely. Escalate to academic advisor phone call or 1-on-1 tutoring.
             </p>
         </div>
     """, unsafe_allow_html=True)
