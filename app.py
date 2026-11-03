@@ -410,16 +410,23 @@ with tab2:
     """, unsafe_allow_html=True)
 
 # =============================================================
-# TAB 3: INTERVENTION HIT-LIST
+# TAB 3: INTERVENTION HIT-LIST (Clean Dropdowns, No Slider)
 # =============================================================
 with tab3:
-    # Direct Filter Controls (Clean and Minimalist)
+    # 2 Clean Dropdown Filters Side-by-Side (No Slider)
     f1, f2 = st.columns([1, 1.2])
     with f1:
-        score_filter = st.slider("Filter by Minimum Frustration Score", min_value=50, max_value=95, value=50, step=5)
+        tier_select = st.selectbox(
+            "Filter by Risk Severity",
+            [
+                "All At-Risk Students (Score >= 50)",
+                "Critical Emergencies Only (Score >= 80)",
+                "Moderate Warning (Score 50 to 79)"
+            ]
+        )
     with f2:
         action_select = st.selectbox(
-            "Filter by Recommended Action",
+            "Filter by Prescribed Action",
             [
                 "All Recommended Actions",
                 "Send automated SMS check-in (Absence pattern)",
@@ -428,8 +435,8 @@ with tab3:
             ]
         )
 
-    # Query Table
-    hitlist_sql = f"""
+    # Build SQL Query based on Clean Dropdown Selection
+    hitlist_sql = """
         SELECT 
             i.student_id AS "Student ID",
             s.student_name AS "Student Name",
@@ -441,15 +448,23 @@ with tab3:
         FROM INTERVENTION_LOG i
         JOIN Students s ON i.student_id = s.student_id
         JOIN Courses c ON i.course_id = c.course_id
-        WHERE i.frustration_score >= {score_filter}
+        WHERE 1=1
     """
-    if action_select != "All Prescribed Actions":
+
+    if tier_select == "Critical Emergencies Only (Score >= 80)":
+        hitlist_sql += " AND i.frustration_score >= 80"
+    elif tier_select == "Moderate Warning (Score 50 to 79)":
+        hitlist_sql += " AND i.frustration_score >= 50 AND i.frustration_score < 80"
+    else:
+        hitlist_sql += " AND i.frustration_score >= 50"
+
+    if action_select != "All Recommended Actions":
         hitlist_sql += f" AND i.action_recommended = '{action_select}'"
         
     hitlist_sql += " ORDER BY i.frustration_score DESC;"
     df_hitlist = run_query(hitlist_sql)
 
-    st.markdown(f"<div style='font-size: 0.82rem; color: #64748B; margin-bottom: 6px;'>Displaying <b>{len(df_hitlist)}</b> students requiring intervention (Threshold: {score_filter}+)</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size: 0.82rem; color: #64748B; margin-top: 4px; margin-bottom: 8px;'>Displaying <b>{len(df_hitlist)}</b> students requiring intervention</div>", unsafe_allow_html=True)
 
     st.dataframe(
         df_hitlist,
@@ -466,7 +481,7 @@ with tab3:
         }
     )
 
-    # Operational Protocol (Moved cleanly to the bottom)
+    # Operational Protocol (Clean summary box at bottom)
     st.markdown("""
         <div class="summary-box">
             <div class="summary-heading">Operational Action Protocol</div>
