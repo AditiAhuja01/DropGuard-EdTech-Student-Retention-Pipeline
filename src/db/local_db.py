@@ -9,8 +9,10 @@ def build_local_database():
     Creates an in-memory DuckDB database, registers the 5 clean CSV files,
     and calculates student Frustration Scores using clean, beginner-friendly SQL.
     """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+    # Use the current working directory as project root.
+    # On Streamlit Cloud, the app always runs from the repo root.
+    # os.getcwd() works correctly both locally and on the cloud server.
+    project_root = os.getcwd()
     data_dir = os.path.join(project_root, "data", "clean")
     
     con = duckdb.connect(database=":memory:")
