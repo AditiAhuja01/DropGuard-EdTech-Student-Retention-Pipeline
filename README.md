@@ -149,11 +149,3 @@ The dashboard opens automatically at `http://localhost:8501`.
 * **Operational Boundary:** Action recommendations (SMS, Email, Tutoring) are prescriptive guidance for advisors; DropGuard does not dispatch live external API communications.
 * **Embedded Analytics:** Runs on DuckDB in-memory storage designed for rapid analytical queries without requiring a standalone database server.
 
----
-
-## 8. How I Would Explain This Project in an Interview
-
-* **Problem:** In online education, over 60% of student dropouts occur within the first two weeks, but traditional dashboards only flag students 30 days after they have stopped logging in.
-* **Approach:** I designed an early-warning telemetry pipeline using Pydantic for data validation and quarantine, loaded clean records into DuckDB, and implemented a transparent 50/30/20 SQL scoring algorithm focused entirely on the first 20% of course duration.
-* **Result:** The pipeline correctly isolated 88.7% of early dropouts with a 1.5% false-positive rate on course completers, mapping each at-risk student to a specific intervention recommendation.
-* **Next Improvement:** In production, I would connect this to an automated CRM webhook (such as Braze or HubSpot) to trigger student advisor alerts in real time.
