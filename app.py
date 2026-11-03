@@ -153,6 +153,17 @@ st.markdown("""
             margin-bottom: 12px;
             font-style: italic;
         }
+
+        /* Triage Guide Cards */
+        .tier-guide {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            color: #475569;
+            margin-bottom: 12px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -197,7 +208,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------
-# 5. Tab Navigation (Clean, Unified Structure)
+# 5. Tab Navigation
 # -------------------------------------------------------------
 tab1, tab2, tab3, tab4 = st.tabs([
     "Executive Overview",
@@ -210,7 +221,6 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: EXECUTIVE OVERVIEW
 # =============================================================
 with tab1:
-    # Top 4 KPI Metrics
     total_students = run_query("SELECT COUNT(*) FROM Students;").iloc[0, 0]
     total_enrollments = run_query("SELECT COUNT(*) FROM Enrollments;").iloc[0, 0]
     at_risk_count = run_query("SELECT COUNT(*) FROM INTERVENTION_LOG;").iloc[0, 0]
@@ -254,7 +264,6 @@ with tab1:
 
     st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
 
-    # 2 Charts Side by Side
     c1, c2 = st.columns([1, 1])
 
     with c1:
@@ -327,7 +336,6 @@ with tab1:
         st.plotly_chart(fig_ret, use_container_width=True)
         st.markdown("<div class='chart-note'>Unassisted cohorts level off at 65%-72% retention without targeted intervention.</div>", unsafe_allow_html=True)
 
-    # Executive Summary Takeaway Box
     st.markdown("""
         <div class="summary-box">
             <div class="summary-heading">Executive Insight: Early Detection Salvages Retention</div>
@@ -411,7 +419,6 @@ with tab2:
         st.plotly_chart(fig_scat, use_container_width=True)
         st.markdown("<div class='chart-note'>Positive correlation: Students who watch at least 15 minutes of video average higher quiz pass rates.</div>", unsafe_allow_html=True)
 
-    # Top Courses at Risk Table
     st.markdown("<div class='chart-heading' style='margin-top: 14px;'>Top Courses Requiring Curriculum Attention</div>", unsafe_allow_html=True)
     df_top_courses = run_query("""
         SELECT 
@@ -439,20 +446,29 @@ with tab2:
     """, unsafe_allow_html=True)
 
 # =============================================================
-# TAB 3: INTERVENTION HIT-LIST
+# TAB 3: INTERVENTION HIT-LIST (Clear Operational Triage)
 # =============================================================
 with tab3:
     st.markdown("""
-        <div style="font-size: 0.88rem; color: #475569; margin-bottom: 12px;">
-            Targeted operational hit-list for student advisors and academic success coordinators. 
-            Actions are automatically prioritized by each student's highest penalty driver.
+        <div style="font-size: 0.88rem; color: #475569; margin-bottom: 10px;">
+            <b>What is this hit-list?</b> This is an operational triage table for student counselors and academic advisors. 
+            The <b>Frustration Score (0 to 100)</b> combines student attendance, video watch time, and quiz scores into a single urgency indicator.
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Explanation of the Urgency Slider
+    st.markdown("""
+        <div class="tier-guide">
+            <b>How to use the slider below:</b><br>
+            &bull; <b>Score 50+:</b> Shows all <b>71 struggling students</b> who are stalling out (Early Warning).<br>
+            &bull; <b>Score 80+:</b> Move the slider here to see the <b>11 critical emergencies</b> who have completely stopped participating and will quit immediately without direct contact.
         </div>
     """, unsafe_allow_html=True)
 
     # Filter Controls
     f1, f2 = st.columns([1, 1.2])
     with f1:
-        score_filter = st.slider("Minimum Frustration Score Threshold", min_value=50, max_value=95, value=50, step=5)
+        score_filter = st.slider("Filter by Urgency Level (Minimum Frustration Score)", min_value=50, max_value=95, value=50, step=5)
     with f2:
         action_select = st.selectbox(
             "Filter by Prescribed Action",
@@ -464,13 +480,15 @@ with tab3:
             ]
         )
 
-    # Query Table
+    # Query Table with actual underlying activity metrics
     hitlist_sql = f"""
         SELECT 
             i.student_id AS "Student ID",
             s.student_name AS "Student Name",
             c.course_name AS "Course Name",
-            c.difficulty AS "Difficulty",
+            i.early_logins || ' / 4' AS "Logins (Goal: 4+)",
+            i.early_watch_mins || ' min' AS "Watch (Goal: 30m)",
+            i.early_quiz_avg || '%' AS "Quiz (Goal: 75%)",
             i.frustration_score AS "Frustration Score",
             i.category AS "Risk Level",
             i.action_recommended AS "Recommended Action"
@@ -485,7 +503,7 @@ with tab3:
     hitlist_sql += " ORDER BY i.frustration_score DESC;"
     df_hitlist = run_query(hitlist_sql)
 
-    st.markdown(f"<div style='font-size: 0.82rem; color: #64748B; margin-bottom: 6px;'>Displaying <b>{len(df_hitlist)}</b> students requiring intervention</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size: 0.82rem; color: #64748B; margin-bottom: 6px;'>Displaying <b>{len(df_hitlist)}</b> students requiring intervention (Threshold: {score_filter}+)</div>", unsafe_allow_html=True)
 
     st.dataframe(
         df_hitlist,
@@ -494,7 +512,7 @@ with tab3:
         column_config={
             "Frustration Score": st.column_config.ProgressColumn(
                 "Frustration Score",
-                help="Score from 0 to 100",
+                help="Composite urgency score (0 = safe, 100 = drop imminent)",
                 format="%.1f",
                 min_value=0,
                 max_value=100
@@ -504,11 +522,11 @@ with tab3:
 
     st.markdown("""
         <div class="summary-box">
-            <div class="summary-heading">Operational Protocol</div>
+            <div class="summary-heading">Operational Action Logic</div>
             <p class="summary-text">
-                <b>SMS Check-in:</b> Triggered when Absence contributes the majority of points (low logins).<br>
-                <b>Academic Tutoring:</b> Triggered when Struggle contributes the majority of points (failing quizzes).<br>
-                <b>Study Plan Email:</b> Triggered when Inaction contributes the majority of points (low video watch time).
+                <b>SMS Check-in:</b> Triggered when Logins are low (Absence is the highest penalty).<br>
+                <b>Academic Tutoring:</b> Triggered when Quiz Scores are failing (Struggle is the highest penalty).<br>
+                <b>Study Plan Email:</b> Triggered when Video Watch Time is low (Inaction is the highest penalty).
             </p>
         </div>
     """, unsafe_allow_html=True)

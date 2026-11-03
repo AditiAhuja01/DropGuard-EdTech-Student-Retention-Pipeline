@@ -13,10 +13,8 @@ def build_local_database():
     project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
     data_dir = os.path.join(project_root, "data", "clean")
     
-    # Initialize high-speed in-memory DuckDB connection
     con = duckdb.connect(database=":memory:")
     
-    # Standardize file paths for DuckDB
     c_csv = os.path.join(data_dir, "courses.csv").replace("\\", "/")
     i_csv = os.path.join(data_dir, "instructors.csv").replace("\\", "/")
     s_csv = os.path.join(data_dir, "students.csv").replace("\\", "/")
@@ -76,30 +74,37 @@ def build_local_database():
     # ---------------------------------------------------------
     # 4. Step 3: Populate INTERVENTION_LOG (Students with Score >= 50)
     # Applies 50/30/20 weights to determine composite Frustration Score
+    # Includes original activity metrics for complete explainability
     # ---------------------------------------------------------
     con.execute("""
     CREATE TABLE INTERVENTION_LOG AS
     SELECT 
-        student_id,
-        course_id,
-        persona,
-        ROUND((absence_penalty * 0.50) + (inaction_penalty * 0.30) + (struggle_penalty * 0.20), 1) AS frustration_score,
+        p.student_id,
+        p.course_id,
+        p.persona,
+        m.early_logins,
+        ROUND(m.early_watch_time / 60.0, 0) AS early_watch_mins,
+        ROUND(COALESCE(m.avg_score, 0.0), 1) AS early_quiz_avg,
+        ROUND((p.absence_penalty * 0.50) + (p.inaction_penalty * 0.30) + (p.struggle_penalty * 0.20), 1) AS frustration_score,
         
         CASE 
-            WHEN ((absence_penalty * 0.50) + (inaction_penalty * 0.30) + (struggle_penalty * 0.20)) >= 80 
+            WHEN ((p.absence_penalty * 0.50) + (p.inaction_penalty * 0.30) + (p.struggle_penalty * 0.20)) >= 80 
             THEN 'High Risk - Drop Imminent'
             ELSE 'At Risk - Stalling'
         END AS category,
         
         CASE 
-            WHEN (struggle_penalty * 0.20) >= (absence_penalty * 0.50) AND (struggle_penalty * 0.20) >= (inaction_penalty * 0.30)
+            WHEN (p.struggle_penalty * 0.20) >= (p.absence_penalty * 0.50) AND (p.struggle_penalty * 0.20) >= (p.inaction_penalty * 0.30)
             THEN 'Schedule 1-on-1 Academic Tutoring (Struggle pattern)'
-            WHEN (absence_penalty * 0.50) >= (inaction_penalty * 0.30)
+            WHEN (p.absence_penalty * 0.50) >= (p.inaction_penalty * 0.30)
             THEN 'Send automated SMS check-in (Absence pattern)'
             ELSE 'Send targeted encouraging email (Inaction pattern)'
         END AS action_recommended
-    FROM StudentPenalties
-    WHERE ((absence_penalty * 0.50) + (inaction_penalty * 0.30) + (struggle_penalty * 0.20)) >= 50.0;
+    FROM StudentPenalties p
+    JOIN EarlyMetrics m 
+        ON p.student_id = m.student_id 
+        AND p.course_id = m.course_id
+    WHERE ((p.absence_penalty * 0.50) + (p.inaction_penalty * 0.30) + (p.struggle_penalty * 0.20)) >= 50.0;
     """)
     
     return con
