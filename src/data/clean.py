@@ -1,20 +1,26 @@
+# src/data/clean.py
+# Validates raw telemetry using Pydantic data models.
+# Valid records are saved to data/clean/. Corrupted records are routed to data/quarantine/.
+
 import os
 import pandas as pd
 from pydantic import BaseModel, EmailStr, field_validator, ValidationError
 from typing import Optional
 from datetime import date
 
-# ==========================================
-# 1. DEFINE PYDANTIC STRICT DATA SCHEMAS
-# ==========================================
+# -------------------------------------------------------------
+# 1. Pydantic Data Models (Data Quality Rules)
+# -------------------------------------------------------------
 
 class StudentModel(BaseModel):
+    """Validates student profile data."""
     student_id: str
     student_name: str
-    email: EmailStr  # Pydantic will instantly reject any email missing an '@' or domain
+    email: EmailStr  # Pydantic checks for a valid email format with '@' and domain
     signup_date: date
 
 class EngagementLogModel(BaseModel):
+    """Validates event log data from the course platform."""
     log_id: str
     student_id: str
     course_id: str
@@ -23,7 +29,6 @@ class EngagementLogModel(BaseModel):
     watch_time_seconds: Optional[float] = None
     assignment_score: Optional[float] = None
     
-    # Custom Validation rules exactly describing business logic
     @field_validator('watch_time_seconds')
     @classmethod
     def check_watch_time(cls, v):
@@ -35,22 +40,25 @@ class EngagementLogModel(BaseModel):
     @classmethod
     def check_score(cls, v):
         if v is not None and (v < 0 or v > 100):
-            raise ValueError("Assignment score must be securely between 0 and 100")
+            raise ValueError("Assignment score must be between 0 and 100")
         return v
 
-# ==========================================
-# 2. RUN THE VALIDATION ETL PIPELINE
-# ==========================================
+# -------------------------------------------------------------
+# 2. Validation & Quarantine Processing
+# -------------------------------------------------------------
 
 def clean_data():
-    print("Initializing Data Cleaning & Validation Layer...")
+    """
+    Reads raw CSV files, applies Pydantic validation rules,
+    and splits output into clean and quarantine folders.
+    """
+    print("[INFO] Starting data validation and quarantine pipeline...")
     
-    # Create the layers
     os.makedirs("data/clean", exist_ok=True)
     os.makedirs("data/quarantine", exist_ok=True)
     
-    # --- PROCESS STUDENTS ---
-    print("\nScanning Students CSV for Malformed Emails...")
+    # --- Validate Students ---
+    print("[INFO] Validating Students dataset...")
     raw_students = pd.read_csv("data/raw/students.csv").to_dict(orient="records")
     clean_students, quarantine_students = [], []
     
@@ -59,7 +67,8 @@ def clean_data():
             valid_student = StudentModel(**row)
             clean_students.append(valid_student.model_dump())
         except ValidationError as e:
-            # If it fails, capture the exact pydantic error and banish it to quarantine
+            # Capture human-readable error reason for the quarantine file
+            row['quarantine_reason'] = "Invalid email format (missing '@' or domain)"
             row['error_reason'] = str(e).replace('\n', ' ')
             quarantine_students.append(row)
             
@@ -67,13 +76,11 @@ def clean_data():
     if quarantine_students:
         pd.DataFrame(quarantine_students).to_csv("data/quarantine/dirty_students.csv", index=False)
         
-    print(f"SUCCESS: Students | Passed: {len(clean_students)} | Quarantined: {len(quarantine_students)}")
+    print(f"[SUCCESS] Students - Valid: {len(clean_students)} | Quarantined: {len(quarantine_students)}")
 
-    # --- PROCESS LOGS ---
-    print("\nScanning ~35,000 Engagement Logs for anomalies (negative time, fake scores)...")
+    # --- Validate Engagement Logs ---
+    print("[INFO] Validating Engagement Logs dataset...")
     raw_logs = pd.read_csv("data/raw/engagement_logs.csv")
-    
-    # Replace Pandas NaN with Python None so Pydantic understands it's officially "null"
     raw_logs = raw_logs.where(pd.notnull(raw_logs), None).to_dict(orient="records")
     clean_logs, quarantine_logs = [], []
     
@@ -82,6 +89,14 @@ def clean_data():
             valid_log = EngagementLogModel(**row)
             clean_logs.append(valid_log.model_dump())
         except ValidationError as e:
+            # Categorize the quarantine reason
+            reasons = []
+            if row.get('watch_time_seconds') is not None and row['watch_time_seconds'] < 0:
+                reasons.append("Negative video watch time")
+            if row.get('assignment_score') is not None and (row['assignment_score'] < 0 or row['assignment_score'] > 100):
+                reasons.append("Assignment score outside 0-100 range")
+            
+            row['quarantine_reason'] = "; ".join(reasons) if reasons else "Schema validation failure"
             row['error_reason'] = str(e).replace('\n', ' ')
             quarantine_logs.append(row)
             
@@ -89,15 +104,14 @@ def clean_data():
     if quarantine_logs:
         pd.DataFrame(quarantine_logs).to_csv("data/quarantine/dirty_logs.csv", index=False)
         
-    print(f"SUCCESS: Logs | Passed: {len(clean_logs)} | Quarantined: {len(quarantine_logs)}")
+    print(f"[SUCCESS] Logs - Valid: {len(clean_logs)} | Quarantined: {len(quarantine_logs)}")
     
-    # --- BYPASS SAFE TABLES ---
-    # Courses, Instructors, and Enrollments do not have dirty data injected in our simulation
+    # --- Pass Through Already Clean Reference Tables ---
     pd.read_csv("data/raw/instructors.csv").to_csv("data/clean/instructors.csv", index=False)
     pd.read_csv("data/raw/courses.csv").to_csv("data/clean/courses.csv", index=False)
     pd.read_csv("data/raw/enrollments.csv").to_csv("data/clean/enrollments.csv", index=False)
     
-    print("\nSUCCESS: Phase 3 Complete! Data is cleaned and verified safe for Database Insertion.")
+    print("[SUCCESS] Data validation and quarantine complete. Clean files are ready for DuckDB.")
 
 if __name__ == '__main__':
     clean_data()
