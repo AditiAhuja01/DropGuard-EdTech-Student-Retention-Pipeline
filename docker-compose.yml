@@ -1,0 +1,9 @@
+services:
+  dropguard-analytics:
+    build: .
+    container_name: dropguard_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

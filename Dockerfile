@@ -8,8 +8,8 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies required for building Python packages
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+# Install system dependencies required for building Python packages and container healthchecks
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential curl && rm -rf /var/lib/apt/lists/*
 
 # Copy the dependency requirements file into the container
 COPY requirements.txt .
